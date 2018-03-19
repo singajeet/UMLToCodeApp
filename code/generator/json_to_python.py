@@ -1,5 +1,5 @@
 """
-.. module:: code_gen_for_json_to_python
+.. module:: json_to_python
    :platform: Any
    :synopsis: Module to parse JSON file and create code
 
@@ -7,21 +7,10 @@
 """
 import ujson
 import pathlib
-import jinja2
 from typing import Type
 from configparser import ConfigParser
+from UMLToCodeApp import config
 
-
-################ Config variables #########################
-CONFIG_FILE = 'uml_to_code.ini'
-DEFAULT_SECTION = 'default'
-APP_BASE_PATH_KEY = 'app_base_path'
-APP_BASE_PATH = None
-CODE_GEN_SECTION = 'code_generator'
-OUTPUT_FOLDER_PATH_KEY = 'output_folder_path'
-OUTPUT_FOLDER_PATH = None
-OVERWRITE_FILE_KEY = 'overwrite_file'
-OVERWRITE_FILE = None
 
 ############### Constants ################################
 MODULE = 'module'
@@ -40,23 +29,6 @@ FIELDS = 'fields'
 FUNCTIONS = 'functions'
 METHODS = 'methods'
 
-_config_parser = None
-
-def init():
-    """ Initialize this module
-
-    """
-    _config_parser = ConfigParser()
-    _config_parser.read(CONFIG_FILE)
-    global APP_BASE_PATH 
-    APP_BASE_PATH = _config_parser.get(DEFAULT_SECTION, 
-                                       APP_BASE_PATH_KEY)
-    global OUTPUT_FOLDER_PATH
-    OUTPUT_FOLDER_PATH = _config_parser.get(CODE_GEN_SECTION,
-                                          OUTPUT_FOLDER_PATH_KEY)
-    global OVERWRITE_FILE
-    OVERWRITE_FILE = _config_parser.get(CODE_GEN_SECTION, 
-                                        OVERWRITE_FILE_KEY)
 
 def validate(raw_data):
     """Validates the raw data passed as arg. It checks whether it is in JSON
@@ -96,17 +68,15 @@ def generate_module_file(module_name):
 
     """
     output_folder = None
-    if APP_BASE_PATH.find('~') > 0 or OUTPUT_FOLDER_PATH.find('~') > 0:
-        output_folder = pathlib.Path(APP_BASE_PATH,
-                                     OUTPUT_FOLDER_PATH).expanduser()
+    if config.OUTPUT_FOLDER_PATH.find('~') > 0:
+        output_folder = pathlib.Path(config.OUTPUT_FOLDER_PATH).expanduser()
     else:
-        output_folder = pathlib.Path(APP_BASE_PATH,
-                                     OUTPUT_FOLDER_PATH).absolute()
+        output_folder = pathlib.Path(config.OUTPUT_FOLDER_PATH).absolute()
     if output_folder is not None:
         if not output_folder.exists():
             output_folder.mkdir(parents=True)
         module_file = output_folder.joinpath('%s.py' % module_name)
-        if module_file.exists() and OVERWRITE_FILE is True:
+        if module_file.exists() and config.OVERWRITE_FILE is True:
             module_file.unlink()
         module_file.touch()
     return module_file
@@ -146,7 +116,12 @@ def generate_code(file_name):
 
     """
     if file_name is not None:
-        raw_data = open(file_name).read()
+        file_path = None
+        if config.INPUT_FOLDER_PATH.find('~') > 0:
+            file_path = pathlib.Path(config.INPUT_FOLDER_PATH, file_name).expanduser()
+        else:
+            file_path = pathlib.Path(config.INPUT_FOLDER_PATH, file_name).absolute()
+        raw_data = open(file_path).read()
         if raw_data is not None:
             (is_valid, json_data) = validate(raw_data)
             if is_valid:
