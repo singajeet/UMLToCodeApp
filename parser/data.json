@@ -1,0 +1,83 @@
+{
+    "name": "my_module",
+    "module": {
+        "classes":{
+            "Person": {
+                "details": {
+                    "type": "default",
+                    "inherits": ["object"],
+                    "is_abstract": false,
+                    "is_interface": false
+                },
+                "constructors": {
+                    "0": {},
+                    "1": {
+                        "fname": {
+                            "type": "string",
+                            "default": "",
+                            "required": true
+                        },
+                        "lname": {
+                            "type": "string",
+                            "default": "",
+                            "required": false
+                        }
+                    }
+                },
+                "fields": {
+                    "first_name": {
+                        "type": "string",
+                        "default": "",
+                        "access": "public"
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "default": "",
+                        "access": "public"
+                    },
+                    "phone": {
+                        "type": "int",
+                        "default": 0,
+                        "access": "public"
+                    }
+                },
+                "methods": {
+                    "get_first_name": {
+                        "args": {},
+                        "body": "",
+                        "returns": ["string"]
+                    },
+                    "get_last_name": {
+                        "args": {},
+                        "body": "",
+                        "returns": ["string"]
+                    },
+                    "set_first_name": {
+                        "args": {
+                            "fname": {
+                                "type": "string",
+                                "default": "",
+                                "required": true
+                            }
+                        },
+                        "body": "",
+                        "returns": {}
+                    },
+                    "set_last_name": {
+                        "args": {
+                            "lname": {
+                                "type": "string",
+                                "default": "",
+                                "required": true
+                            }
+                        },
+                        "body": "",
+                        "returns": {}
+                    }
+                }
+            },
+            "ClassB": {}
+        },
+        "functions": {}
+    }
+}
