@@ -5,33 +5,41 @@
 #}
 #-- start class --
 class {{ class_name }} ({{ inherits|default('object') }}):
-    """{{ Description|default('No Description') }}
+    """
+    {{ Description|default('No Description') }}
 
-    {%- if example %}}
+{% if example %}
     Example:
         {{ example }}
-    {% endif %}
 
+{% endif %}
     """
 
     #-- default constructor --
-{% if constructors -%}
-    {% if '0' is in constructors %}
-        def __init__(self):
-            """{{ constructors['0']['description'] }}
+{% if constructors %}
+{% if '0' is in constructors %}
+    def __init__(self):
+        """{{ constructors['0']['description'] }}
 
-            """
-        {#{% if fields %}
-            {% for field, fd in fields.items() %}
-                {% if fd.type == 'string' %}
-            self.{{ field }} = '{{ fd.default|default('') }}'
-                {% else %}
-            self.{{ field }} = None
-                {% endif %}
-            {% endfor %}
-        {% endif %}#}
-    {%- endif %}
-{%- endif %}
+        """
+        #-- Init fields --
+{% if fields %}
+{% for field, fd in fields.items() %}
+{% if fd.type == 'string' %}
+        self.{{ field }} = '{{ fd.default|default('') }}'
+{% elif fd.type == 'int'  %}
+        self.{{ field }} = {{ fd.default|default(0) }}
+{% else %}
+        self.{{ field }} = None
+{% endif %}
+{% endfor %}
+{% endif %}
+        #-- end init fields --
+
+{% endif %}
+{% endif %}
+    #-- end constructors --
+
 #-- end class --
 {#
 {% if args is not None %}
