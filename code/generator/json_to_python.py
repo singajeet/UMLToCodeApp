@@ -10,6 +10,7 @@ import pathlib
 from typing import Type
 from configparser import ConfigParser
 from UMLToCodeApp import config
+from UMLToCodeApp.templates import manager
 
 
 ############### Constants ################################
@@ -79,6 +80,11 @@ def generate_module_file(module_name):
         if module_file.exists() and config.OVERWRITE_FILE is True:
             module_file.unlink()
         module_file.touch()
+        #Get rendered module template from templates manager
+        module_str = manager.apply_to_module(module_name)
+        #save rendered string to newly created module file
+        with module_file.open('w') as mf:
+            mf.write(module_str)
     return module_file
 
 def generate_class(cls_name, cls_def):
@@ -134,7 +140,7 @@ def generate_code(file_name):
                     classes = module[CLASSES]
                 if module.__contains__(FUNCTIONS):
                     functions = module[FUNCTIONS]
-                mod_file = module_file.open('w')
+                mod_file = module_file.open('a')
                 for cls_name, cls_def in classes.items():
                     cls_def_str = generate_class(cls_name, cls_def)
                     mod_file.write(cls_def_str)
