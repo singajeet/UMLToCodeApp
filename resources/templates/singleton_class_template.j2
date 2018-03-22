@@ -1,12 +1,12 @@
 {#
-    name: simple_class_template
-    description: Template for generating an simple class
+    name: singleton_class_template
+    description: Template for generating an singleton class
     author: Ajeet Singh
     JSON structure:
 #}
 {% from 'macro_utils.j2' import expand_arg, expand_args, print_field,
 expand_return %}
-#-- start class --
+#-- start singleton class --
 class {{ class_name }} ({{ inherits|default('object') }}):
     """
     {{ description|default('No Description') }}
@@ -22,6 +22,17 @@ class {{ class_name }} ({{ inherits|default('object') }}):
 
 {% endif %}
     """
+    #singleton object variable
+    {{ singleton_var_name|default('__singleton_object') }} = None
+
+    #singleton class new method
+    def __new__(cls, *args, **kwargs):
+    """{{ singleton_new_func_desc|default('No description') }}
+
+        """
+        if cls != type(cls.{{ singleton_var_name|default('__singleton_object') }}):
+            cls.{{ singleton_var_name|default('__singleton_object') }} = object.__new__(cls, *args, **kwargs)
+        return cls.{{ singleton_var_name|default('__singleton_object') }}
 
 {% if constructors %}
     #-- constructors --
@@ -31,13 +42,6 @@ class {{ class_name }} ({{ inherits|default('object') }}):
         """{{ construct_details.description|default('-- description --') }}
 
         """
-{% if properties %}
-        #-#-- Init properties --
-        {% for prop_name, prop in properties.items() %}
-        {{ print_field(prop_name, prop, '_')|indent(8) }}
-        {% endfor %}
-        #-#-- end init properties --
-{% endif %}
 {% if fields %}
         #-#-- Init fields --
         {% for field_name, field_details in fields.items() %}
@@ -70,16 +74,8 @@ class {{ class_name }} ({{ inherits|default('object') }}):
 {% endif %}
 {% endfor %}
     #-- end constructors --
-
 {% endif %}
-{% if properties %}
-    #-- properties --
-    {% for prop_name, prop in properties.items() %}
-    {{ print_property(prop_name, prop) }}
-    {% endfor %}
-    #-- end properties --
 
-{% endif %}
 {% if methods %}
     #-- define methods --
 {% for method, method_details in methods.items() %}
