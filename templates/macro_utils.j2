@@ -23,7 +23,7 @@ self.{{ var_name }} = '{{ var_val|default('') }}'
 {# --- end macro def --- #}
 
 {# --- start print_field macro def --- #}
-{% macro print_field(field_name, field_details, indnt_val=0) %}
+{% macro print_field(field_name, field_details) %}
 {% if field_details.description %}{{ print_comment(field_details.description) }}{% endif %}
 {% if field_details.type and field_details.type in ['str', 'string', 'text'] %}
 {{ print_str_assign_field(field_name, field_details.default) }}
@@ -44,5 +44,11 @@ self.{{ var_name }} = '{{ var_val|default('') }}'
 {# --- start expand_args macro definition ---#}
 {%- macro expand_args(args) -%}
 {%- for arg_name, arg_details in args.items() -%}, {{ expand_arg(arg_name, arg_details.type, arg_details.default) }}{%- endfor -%}
+{%- endmacro -%}
+{# --- end macro definition --- #}
+
+{# --- start expand_return macro definition --- #}
+{% macro expand_return(returns) -%}
+{{ '( ' if returns|length > 1 }}{{ returns|join(', ') }}{{ ' )' if returns|length > 1 }}
 {%- endmacro -%}
 {# --- end macro definition --- #}

@@ -4,7 +4,8 @@
     author: Ajeet Singh
     JSON structure:
 #}
-{% from 'macro_utils.j2' import expand_arg, expand_args, print_field %}
+{% from 'macro_utils.j2' import expand_arg, expand_args, print_field,
+expand_return %}
 #-- start class --
 class {{ class_name }} ({{ inherits|default('object') }}):
     """
@@ -24,40 +25,40 @@ class {{ class_name }} ({{ inherits|default('object') }}):
 
 {% if constructors %}
     #-- constructors --
-{% for c_idx, cd in constructors.items(): %}
-{%- if c_idx == '0' %}
+{% for construct_idx, construct_details in constructors.items(): %}
+{%- if construct_idx == '0' %}
     def __init__(self):
-        """{{ cd.description|default('-- description --') }}
+        """{{ construct_details.description|default('-- description --') }}
 
         """
 {% if fields %}
-        #-- Init fields --
+        ##-- Init fields --
         {% for field_name, field_details in fields.items() %}
         {{ print_field(field_name, field_details)|indent(8) }}
         {%- endfor %}
-        #-- end init fields --
+        ##-- end init fields --
 
-{% if cd.body %}
-        {{ cd.body }}
-
-{% endif %}
-{% else %}
-        {{ cd.body|default('pass') }}
+{% if construct_details.body %}
+        {{ construct_details.body }}
 
 {% endif %}
 {% else %}
-    def __init__(self{{ expand_args(cd.args) }}):
-        """{{ cd.description|default('-- description --') }}
-{% if cd.args and cd.args|length >0 %}
+        {{ construct_details.body|default('pass') }}
+
+{% endif %}
+{% else %}
+    def __init__(self{{ expand_args(construct_details.args) }}):
+        """{{ construct_details.description|default('-- description --') }}
+{% if construct_details.args and construct_details.args|length >0 %}
 
         Args:
-{% for arg, ad in cd.args.items() %}
-            {{ arg }} ({{ ad.type }}): {{ ad.description }}
+{% for arg, arg_details in construct_details.args.items() %}
+            {{ arg }} ({{ arg_details.type }}): {{ arg_details.description }}
 {% endfor %}
 
 {% endif %}
         """
-        {{ cd.body|default('pass') }}
+        {{ construct_details.body|default('pass') }}
 
 {% endif %}
 {% endfor %}
@@ -66,24 +67,24 @@ class {{ class_name }} ({{ inherits|default('object') }}):
 
 {% if methods %}
     #-- define methods --
-{% for method, md in methods.items() %}
-{% if md.args|length <= 0 %}
+{% for method, method_details in methods.items() %}
+{% if method_details.args|length <= 0 %}
     def {{ method }}(self):
-        """{{ md.description|default('No description') }}
+        """{{ method_details.description|default('No description') }}
 
         """
 {% else %}
-    def {{ method }}(self{% for arg, ad in md.args.items() %}, {{ expand_arg(arg, ad.type, ad.default) }}{% endfor %}) -> {{ '( ' if md.returns|length > 1 }}{{ md.returns|join(', ') }}{{ ' )' if md.returns|length > 1 }}:
-        """{{ md.description|default('No description') }}
+    def {{ method }}(self{{ expand_args(method_details.args) }}) -> {{  expand_return(method_details.returns) }}:
+        """{{ method_details.description|default('No description') }}
 
         Args:
-{% for arg, ad in md.args.items() %}
-            {{ arg }} ({{ ad.type }}): {{ ad.description }}
+{% for arg, arg_details in method_details.args.items() %}
+            {{ arg }} ({{ arg_details.type }}): {{ arg_details.description }}
 {% endfor %}
 
         """
 {% endif %}
-        {{ md.body|default('pass') }}
+        {{ method_details.body|default('pass') }}
 {% endfor %}
 
     #-- end define methods --
