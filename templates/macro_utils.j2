@@ -61,16 +61,16 @@ def {{ prop_name }}(self):
     """GETTER: {{ prop.description }}
 
     """
-    return self._{{ prop_name}}
+    return self._{{ prop_name }}
 
-{% if not prop.prop_type or if prop.prop_type == 'rw' %}
+{% if not prop.prop_type or prop.prop_type == 'rw' %}
 @{{ prop_name }}.setter
 def {{ prop_name }}(self, value):
     """SETTER: {{ prop.description }}
 
     """
     if self._{{ prop_name }} != value:
-        {% if prop.condition %}
+{% if prop.condition %}
         if {{ prop.condition }}:
             self._{{ prop_name }} = value
         {% else %}

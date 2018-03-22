@@ -5,7 +5,7 @@
     JSON structure:
 #}
 {% from 'macro_utils.j2' import expand_arg, expand_args, print_field,
-expand_return %}
+expand_return, print_property %}
 #-- start class --
 class {{ class_name }} ({{ inherits|default('object') }}):
     """
@@ -22,10 +22,13 @@ class {{ class_name }} ({{ inherits|default('object') }}):
 
 {% endif %}
     """
-
+{# --- built-in functions def --- #}
+{% block builtin %}
+{% endblock %}
+{# --- end built-in funcs def --- #}
 {% if constructors %}
     #-- constructors --
-{% for construct_idx, construct_details in constructors.items(): %}
+{% for construct_idx, construct_details in constructors.items() %}
 {%- if construct_idx == '0' %}
     def __init__(self):
         """{{ construct_details.description|default('-- description --') }}
@@ -33,14 +36,15 @@ class {{ class_name }} ({{ inherits|default('object') }}):
         """
 {% if properties %}
         #-#-- Init properties --
-        {% for prop_name, prop in properties.items() %}
+{% for prop_name, prop in properties.items() %}
         {{ print_field(prop_name, prop, '_')|indent(8) }}
-        {% endfor %}
+        {%- endfor %}
         #-#-- end init properties --
+
 {% endif %}
 {% if fields %}
         #-#-- Init fields --
-        {% for field_name, field_details in fields.items() %}
+{% for field_name, field_details in fields.items() %}
         {{ print_field(field_name, field_details)|indent(8) }}
         {%- endfor %}
         #-#-- end init fields --
@@ -74,9 +78,9 @@ class {{ class_name }} ({{ inherits|default('object') }}):
 {% endif %}
 {% if properties %}
     #-- properties --
-    {% for prop_name, prop in properties.items() %}
-    {{ print_property(prop_name, prop) }}
-    {% endfor %}
+{% for prop_name, prop in properties.items() %}
+    {{ print_property(prop_name, prop)|indent() }}
+    {%- endfor %}
     #-- end properties --
 
 {% endif %}
