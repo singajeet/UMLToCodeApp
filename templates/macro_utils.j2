@@ -3,6 +3,30 @@
     description: utility / general purpose macros
     author: Ajeet Singh
 #}
-{% macro expand_args(args) %}
 
+{# --- start expand_arg macro definition --- #}
+{% macro expand_arg(name, type, default) -%}
+{{ name }}{{ ': ' ~ type if type }}{% if default and type in ['str','string'] %}='{{ default }}'{% elif default %}={{ default }}{% endif %}
+{%- endmacro %}
+{# --- end macro definition --- #}
+
+{# --- start expand_args macro definition ---#}
+{% macro expand_args(args) %}
+{% for arg_name, arg_details in args.items() %}, {{ expand_arg(arg_name, arg_details.type, arg_details.default) }}{% endfor %}
 {% endmacro %}
+{# --- end macro definition --- #}
+
+{# --- start expand_fields macro definition ---#}
+{% macro expand_fields(fields) %}
+{% for field_name, field_details in fields.items() %}
+{% if field_details.description %}# -- {{ field_details.description }}{% endif%}
+{% if field_details.type and field_details.type in ['str', 'string', 'text'] %}
+self.{{ field_name }} = '{{ field_details.default|default('') }}'
+{% elif field_details.type and field_details.type in ['int', 'integer', 'float', 'double'] %}
+self.{{ field_name }} = {{ field_details.default|default(0) }}
+{% else %}
+self.{{ field_name }} = None
+{% endif %}
+{% endfor %}
+{% endmacro %}
+{# --- end macro definition --- #}

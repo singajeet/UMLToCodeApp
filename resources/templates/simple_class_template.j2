@@ -4,11 +4,7 @@
     author: Ajeet Singh
     JSON structure:
 #}
-{# ---start macro definitions--- #}
-{% macro arg_text(name, type, default) -%}
-{{ name }}{{ ': ' ~ type if type }}{% if default and type in ['str','string'] %}='{{ default }}'{% elif default %}={{ default }}{% endif %}
-{%- endmacro %}
-{# ---end macro definitions--- #}
+{% from 'macro_utils.j2' import expand_arg, expand_args, expand_fields %}
 #-- start class --
 class {{ class_name }} ({{ inherits|default('object') }}):
     """
@@ -36,16 +32,7 @@ class {{ class_name }} ({{ inherits|default('object') }}):
         """
 {% if fields %}
         #-- Init fields --
-{% for field, fd in fields.items() %}
-        {{ '#' ~ fd.description if fd.description }}
-{% if fd.type in ['str', 'string', 'text'] %}
-        self.{{ field }} = '{{ fd.default|default('') }}'
-{% elif fd.type in ['int', 'integer', 'double', 'float']  %}
-        self.{{ field }} = {{ fd.default|default(0) }}
-{% else %}
-        self.{{ field }} = None
-{% endif %}
-{% endfor %}
+        {{ expand_fields(fields) }}
         #-- end init fields --
 
 {% if cd.body %}
@@ -57,7 +44,7 @@ class {{ class_name }} ({{ inherits|default('object') }}):
 
 {% endif %}
 {% else %}
-    def __init__(self{% for arg, ad in cd.args.items() %}, {{ arg_text(arg, ad.type, ad.default) }}{% endfor %}):
+    def __init__(self{{ expand_args(cd.args) }}):
         """{{ cd.description|default('-- description --') }}
 {% if cd.args and cd.args|length >0 %}
 
@@ -84,7 +71,7 @@ class {{ class_name }} ({{ inherits|default('object') }}):
 
         """
 {% else %}
-    def {{ method }}(self{% for arg, ad in md.args.items() %}, {{ arg_text(arg, ad.type, ad.default) }}{% endfor %}) -> {{ '( ' if md.returns|length > 1 }}{{ md.returns|join(', ') }}{{ ' )' if md.returns|length > 1 }}:
+    def {{ method }}(self{% for arg, ad in md.args.items() %}, {{ expand_arg(arg, ad.type, ad.default) }}{% endfor %}) -> {{ '( ' if md.returns|length > 1 }}{{ md.returns|join(', ') }}{{ ' )' if md.returns|length > 1 }}:
         """{{ md.description|default('No description') }}
 
         Args:
