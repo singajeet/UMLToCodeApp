@@ -4,7 +4,7 @@
     author: Ajeet Singh
     JSON structure:
 #}
-{% from 'macro_utils.j2' import expand_arg, expand_args, expand_fields %}
+{% from 'macro_utils.j2' import expand_arg, expand_args, print_field %}
 #-- start class --
 class {{ class_name }} ({{ inherits|default('object') }}):
     """
@@ -25,14 +25,16 @@ class {{ class_name }} ({{ inherits|default('object') }}):
 {% if constructors %}
     #-- constructors --
 {% for c_idx, cd in constructors.items(): %}
-{% if c_idx == '0' %}
+{%- if c_idx == '0' %}
     def __init__(self):
         """{{ cd.description|default('-- description --') }}
 
         """
 {% if fields %}
         #-- Init fields --
-        {{ expand_fields(fields) }}
+        {% for field_name, field_details in fields.items() %}
+        {{ print_field(field_name, field_details)|indent(8) }}
+        {%- endfor %}
         #-- end init fields --
 
 {% if cd.body %}

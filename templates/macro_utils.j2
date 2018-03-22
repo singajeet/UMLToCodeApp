@@ -4,29 +4,45 @@
     author: Ajeet Singh
 #}
 
+{# --- start print_assign_field macro start --- #}
+{% macro print_assign_field(var_name, var_val) %}
+self.{{ var_name }} = {{ var_val|default(None) }}
+{% endmacro %}
+{# --- end macro def --- #}
+
+{# --- start print_str_assign_field macro start --- #}
+{% macro print_str_assign_field(var_name, var_val) %}
+self.{{ var_name }} = '{{ var_val|default('') }}'
+{% endmacro %}
+{# --- end macro def --- #}
+
+{# --- start print_comment macro def --- #}
+{% macro print_comment(comment) %}
+# -- {{ comment }} --
+{% endmacro %}
+{# --- end macro def --- #}
+
+{# --- start print_field macro def --- #}
+{% macro print_field(field_name, field_details, indnt_val=0) %}
+{% if field_details.description %}{{ print_comment(field_details.description) }}{% endif %}
+{% if field_details.type and field_details.type in ['str', 'string', 'text'] %}
+{{ print_str_assign_field(field_name, field_details.default) }}
+{%- elif field_details.type and field_details.type in ['int', 'integer', 'float', 'double'] %}
+{{ print_assign_field(field_name, field_details.default) }}
+{%- else %}
+{{ print_assign_field(field_name, field_details.default) }}
+{%- endif %}
+{% endmacro %}
+{# --- end macro def --- #}
+
 {# --- start expand_arg macro definition --- #}
-{% macro expand_arg(name, type, default) -%}
-{{ name }}{{ ': ' ~ type if type }}{% if default and type in ['str','string'] %}='{{ default }}'{% elif default %}={{ default }}{% endif %}
-{%- endmacro %}
+{%- macro expand_arg(name, type, default) -%}
+{{ name }}{{ ': ' ~ type if type }}{%- if default and type in ['str','string'] -%}='{{ default }}'{%- elif default -%}={{ default }}{%- endif -%}
+{%- endmacro -%}
 {# --- end macro definition --- #}
 
 {# --- start expand_args macro definition ---#}
-{% macro expand_args(args) %}
-{% for arg_name, arg_details in args.items() %}, {{ expand_arg(arg_name, arg_details.type, arg_details.default) }}{% endfor %}
-{% endmacro %}
-{# --- end macro definition --- #}
-
-{# --- start expand_fields macro definition ---#}
-{% macro expand_fields(fields) %}
-{% for field_name, field_details in fields.items() %}
-{% if field_details.description %}# -- {{ field_details.description }}{% endif%}
-{% if field_details.type and field_details.type in ['str', 'string', 'text'] %}
-self.{{ field_name }} = '{{ field_details.default|default('') }}'
-{% elif field_details.type and field_details.type in ['int', 'integer', 'float', 'double'] %}
-self.{{ field_name }} = {{ field_details.default|default(0) }}
-{% else %}
-self.{{ field_name }} = None
-{% endif %}
-{% endfor %}
-{% endmacro %}
+{%- macro expand_args(args) -%}
+{%- for arg_name, arg_details in args.items() -%}, {{ expand_arg(arg_name, arg_details.type, arg_details.default) }}{%- endfor -%}
+{%- endmacro -%}
 {# --- end macro definition --- #}
