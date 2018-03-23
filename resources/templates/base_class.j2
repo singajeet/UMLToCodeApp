@@ -122,7 +122,7 @@ expand_return, print_property %}
     #-- define methods --
 {% for method, method_details in methods.items() %}
 {% if not method_details.type or method_details.type == 'default' -%}    
-{% include 'method_template.j2' %}
+{% include 'method.j2' %}
 {% endif %}
 {% endfor %}
 

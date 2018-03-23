@@ -4,7 +4,7 @@
     author: Ajeet Singh
     JSON structure:
 #}
-{% extends 'base_class_template.j2' %}
+{% extends 'base_class.j2' %}
 {% block import_block %}
 from abc import ABCMeta, abstractmethod
 
@@ -21,7 +21,7 @@ from abc import ABCMeta, abstractmethod
 {% for method, method_details in methods.items() %}
 {% if method_details.type == 'abstract' %}
     @abstractmethod
-{% include 'method_template.j2' %}
+{% include 'method.j2' %}
 {% endif %}
 {% endfor %}
 
