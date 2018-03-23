@@ -1,12 +1,11 @@
 {#
     name: singleton_class_template
-    description: Template for generating an singleton class. This template
-    inherits from 'simple_class_template'
+    description: Template for generating an singleton class. This template inherits from 'base_class_template'
     author: Ajeet Singh
     JSON structure:
 #}
-{% extends 'class_template.j2' %}
-{% block builtin %}
+{% extends 'base_class_template.j2' %}
+{% block builtin_methods_block %}
     #singleton object variable
     {{ singleton_var_name|default('__singleton_object') }} = None
 

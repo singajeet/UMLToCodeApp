@@ -6,8 +6,12 @@
 #}
 {% from 'macro_utils.j2' import expand_arg, expand_args, print_field,
 expand_return, print_property %}
+{# --- start import block --- #}
+{% block import_block %}
+{% endblock %}
+{# --- end import block --- #}
 #-- start class --
-class {{ class_name }} ({{ inherits|default('object') }}):
+{% block class_prefix %}{% endblock %}class {{ class_name }} ({{ inherits|default('object') }}):
     """
     {{ description|default('No Description') }}
 
@@ -22,10 +26,24 @@ class {{ class_name }} ({{ inherits|default('object') }}):
 
 {% endif %}
     """
-{# --- built-in functions def --- #}
-{% block builtin %}
+{# --- class variables block --- #}
+{% block class_var_block %}
 {% endblock %}
-{# --- end built-in funcs def --- #}
+{# --- end class variables block --- #}
+{# --- static-methods block --- #}
+{% block static_methods_block %}
+{% endblock %}
+{# --- end static-methods block --- #}
+{# --- class-methods block --- #}
+{% block class_methods_block %}
+{% endblock %}
+{# --- end class-methods block --- #}
+{# --- built-in methods block --- #}
+{% block builtin_methods_block %}
+{% endblock %}
+{# --- end built-in methods block --- #}
+{# --- constructors block --- #}
+{% block constructors_block scoped %}
 {% if constructors %}
     #-- constructors --
 {% for construct_idx, construct_details in constructors.items() %}
@@ -34,6 +52,8 @@ class {{ class_name }} ({{ inherits|default('object') }}):
         """{{ construct_details.description|default('-- description --') }}
 
         """
+{# --- prop assign block --- #}
+{% block props_assign_block scoped %}
 {% if properties %}
         #-#-- Init properties --
 {% for prop_name, prop in properties.items() %}
@@ -42,6 +62,10 @@ class {{ class_name }} ({{ inherits|default('object') }}):
         #-#-- end init properties --
 
 {% endif %}
+{% endblock %}
+{# --- end props assign block --- #}
+{# --- fields assign block --- #}
+{% block fields_block scoped %}
 {% if fields %}
         #-#-- Init fields --
 {% for field_name, field_details in fields.items() %}
@@ -57,6 +81,8 @@ class {{ class_name }} ({{ inherits|default('object') }}):
         {{ construct_details.body|default('pass') }}
 
 {% endif %}
+{% endblock %}
+{# --- end fields assign block --- #}
 {% else %}
     def __init__(self{{ expand_args(construct_details.args) }}):
         """{{ construct_details.description|default('-- description --') }}
@@ -76,6 +102,10 @@ class {{ class_name }} ({{ inherits|default('object') }}):
     #-- end constructors --
 
 {% endif %}
+{% endblock %}
+{# --- end constructors block --- #}
+{# --- properties block --- #}
+{% block properties_block scoped %}
 {% if properties %}
     #-- properties --
 {% for prop_name, prop in properties.items() %}
@@ -84,28 +114,24 @@ class {{ class_name }} ({{ inherits|default('object') }}):
     #-- end properties --
 
 {% endif %}
+{% endblock %}
+{# --- end properties block --- #}
+{# --- methods block --- #}
+{% block methods_block scoped %}
 {% if methods %}
     #-- define methods --
 {% for method, method_details in methods.items() %}
-{% if method_details.args|length <= 0 %}
-    def {{ method }}(self):
-        """{{ method_details.description|default('No description') }}
-
-        """
-{% else %}
-    def {{ method }}(self{{ expand_args(method_details.args) }}) -> {{  expand_return(method_details.returns) }}:
-        """{{ method_details.description|default('No description') }}
-
-        Args:
-{% for arg, arg_details in method_details.args.items() %}
-            {{ arg }} ({{ arg_details.type }}): {{ arg_details.description }}
-{% endfor %}
-
-        """
+{% if not method_details.type or method_details.type == 'default' -%}    
+{% include 'method_template.j2' %}
 {% endif %}
-        {{ method_details.body|default('pass') }}
 {% endfor %}
 
     #-- end define methods --
 {% endif %}
+{% endblock %}
+{# --- end methods block --- #}
+{# --- abstract method block --- #}
+{% block abstract_method_block %}
+{% endblock %}
+{# --- end abstract method block --- #}
 #-- end class --
