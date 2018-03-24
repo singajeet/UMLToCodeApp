@@ -1,7 +1,9 @@
 {#
-    name: method_template
-    desc: template for an python method (member of a class)
+    name: method template
+    description: template for an python method (member of a class)
+    language: Python
     author: Ajeet Singh
+    JSON structure:
 #}
 {% if method_details.args|length <= 0 %}
     def {{ method }}(self){{ ' -> ' ~  expand_return(method_details.returns) if method_details.returns }}:
