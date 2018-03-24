@@ -4,11 +4,11 @@
     language: python
     author: ajeet singh
 #}
-{% if class_type %}
+{% if options and options.class_type %}
 {# --- select parent template --- #}
-{% if class_type == 'abstract' %}
+{% if options.class_type == 'abstract' %}
 {% include 'abstract_class.j2'
-{% elif class_type == 'singleton' %}
+{% elif options.class_type == 'singleton' %}
 {% include 'singleton_class.j2' %}
 {% else %}
 {% include 'class.j2' %}
@@ -17,7 +17,7 @@
 {% include 'class.j2' %}
 {% endif %}
 {# --- end select parent template --- #}
-{% if include_static_methods %}
+{% if options.support_static_m %}
 {% block static_methods_block %}
 {% if methods %}
     
@@ -26,6 +26,7 @@
 {% if method_details.type == 'static' %}
     @staticmethod
 {% include 'method.j2' %}
+
 {% endif %}
 {% endfor %}
 
@@ -33,7 +34,7 @@
 {% endif %}
 {% endblock %}
 {% endif %}
-{% if include_class_methods %}
+{% if options.support_cls_m %}
 {% block class_methods_block %}
 {% if methods %}
     
@@ -42,6 +43,7 @@
 {% if method_details.type == 'class' %}
     @classmethod
 {% include 'method.j2' %}
+
 {% endif %}
 {% endfor %}
 
@@ -49,4 +51,17 @@
 {% endif %}
 {% endblock %}
 {% endif %}
+{% if options.support_special_m %}
 
+    # --- special methods ---
+{% block builtin_methods_block %}
+{{ super() }}
+{% if options.support_len %}
+    # ---  __len__ method def ---
+    def __len__(self):
+        
+{% endif %}
+{% endblock %}
+
+    # --- end special methods ---
+{% endif %}
